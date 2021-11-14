@@ -29,9 +29,10 @@ def backup_target(key, path_fs, path_conf, name, files, target_dir, exclude_file
     cmd_archive += files
     print("Backup started at {0}".format(now.strftime("%d/%m/%Y, %H:%M:%S")))
     if incremental_flag:
-        print("New incremental backup: {0}".format(archive_file))
+        print("New incremental backup")
     else:
-        print("New full backup: {0}".format(archive_file))
+        print("New full backup")
+    print("Save backup in", archive_file)
     subprocess.call(cmd_archive)
     return archive_file
 
