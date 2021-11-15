@@ -11,7 +11,7 @@ from glob import glob
 from datetime import datetime
 
 
-def backup_target(key, path_fs, path_conf, name, files, target_dir, exclude_file):
+def backup_target(key, path_fs, name, files, target_dir, exclude_file):
     now = datetime.now()
     dt = now.strftime("%Y-%m-%d-%H-%M-%S")
     snar_file = os.path.join(path_fs, "{0}_{1}.snar".format(name, key))
@@ -37,10 +37,8 @@ def backup_target(key, path_fs, path_conf, name, files, target_dir, exclude_file
     return archive_file
 
 
-def process(path_base, name, target_dir, include_files, exclude_file = False, force = False):
+def process(path_fs, name, target_dir, include_files, exclude_file = False, force = False):
     key = False
-    path_fs = os.path.join(path_base, "fs")
-    path_conf = os.path.join(path_base, "conf")
     if not force:
         files = sorted(glob(os.path.join(path_fs, name + "*_full.tgz")), reverse=True)
         if len(files) > 0:
@@ -57,7 +55,7 @@ def process(path_base, name, target_dir, include_files, exclude_file = False, fo
     if not key:
         key = uuid.uuid4().hex
         print("Generate new key: {0}".format(key))
-    archive_file = backup_target(key, path_fs, path_conf, name, include_files, target_dir, exclude_file)
+    archive_file = backup_target(key, path_fs, name, include_files, target_dir, exclude_file)
     print("Backup file size: {0}".format(os.path.getsize(archive_file)))
     return archive_file
 
@@ -67,7 +65,7 @@ def main():
     files = []
     force = False
     target = False
-    path_base = "/backup"
+    path_fs = "/backup/fs"
     exclude_file = False
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'n:t:e:b:i:f', ['name=', 'target=', 'exclude=', 'base=', 'include=', 'force']) 
@@ -75,7 +73,7 @@ def main():
             if opt in ("-n", "--name"):
                 name = arg
             elif opt in ("-b", "--base"):
-                path_base = arg
+                path_fs = arg
             elif opt in ("-f", "--force"):
                 force = True
             elif opt in ("-t", "--target"):
@@ -87,7 +85,7 @@ def main():
         if len(files) == 0:
             files.append(".")
         if name and target:
-            backup_file = process(path_base, name, target, files, exclude_file, force)
+            backup_file = process(path_fs, name, target, files, exclude_file, force)
             now = datetime.now()
             print("Backup ended at {0}".format(now.strftime("%d/%m/%Y, %H:%M:%S")))
             print("------")
